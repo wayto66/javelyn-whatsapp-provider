@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AppService } from './app.service';
 import {
   ConnectWhatsappInput,
@@ -10,23 +17,26 @@ import {
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get('disconnectWhatsapp')
+  @Get('check')
   check() {
     return this.appService.check();
   }
 
-  @Post('connectWhatsapp')
-  connect(@Body('data') data: ConnectWhatsappInput) {
-    return this.appService.connect(data);
+  @Post('connect')
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  connect(@Body() { userId }: ConnectWhatsappInput) {
+    return this.appService.connect({ userId });
   }
 
-  @Post('sendMessage')
-  sendMessage(@Body('data') data: SendMessageInput) {
+  @Post('send-message')
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  sendMessage(@Body() data: SendMessageInput) {
     return this.appService.sendMessage(data);
   }
 
-  @Post('disconnectWhatsapp')
-  disconnectWhatsapp(
+  @Post('disconnect')
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  disconnect(
     @Body('data')
     data: DisconnectWhatsappInput,
   ) {

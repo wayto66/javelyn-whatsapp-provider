@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import WAWebJS, { Client, MessageMedia, NoAuth } from 'whatsapp-web.js';
+import * as qrcode from 'qrcode-terminal';
+import { Client, MessageMedia, NoAuth } from 'whatsapp-web.js';
+import { EState } from './enums';
 import {
   ConnectWhatsappInput,
   DisconnectWhatsappInput,
@@ -10,7 +12,7 @@ import {
 
 export interface IClientData {
   client: Client | undefined;
-  state: WAWebJS.WAState;
+  state: EState;
   qr: string | undefined;
   userId: number;
 }
@@ -18,7 +20,7 @@ export interface IClientData {
 @Injectable()
 export class AppService {
   public clientData: IClientData = {
-    state: WAWebJS.WAState.UNLAUNCHED,
+    state: EState.UNLAUNCHED,
     qr: undefined,
     client: undefined,
     userId: undefined,
@@ -36,7 +38,7 @@ export class AppService {
 
     const state = await client.getState();
 
-    if (state === WAWebJS.WAState.CONNECTED) {
+    if (state === 'CONNECTED') {
       await client.pupBrowser.close();
     } else {
       client.removeAllListeners();
@@ -46,7 +48,7 @@ export class AppService {
     this.clientData = {
       client: undefined,
       qr: undefined,
-      state: WAWebJS.WAState.UNLAUNCHED,
+      state: EState.UNLAUNCHED,
       userId,
     };
 
@@ -62,9 +64,9 @@ export class AppService {
     leads,
     file,
   }: SendMessageInput): Promise<SendMessageResponse> {
-    const { client, userId } = this.clientData;
+    const { client, userId, state } = this.clientData;
     if (inputUserId !== userId) throw new Error('Forbidden.');
-    if (!client) throw new Error('Sem conexão.');
+    if (!client || state !== 'CONNECTED') throw new Error('Sem conexão.');
 
     const imageBuffer = file ? Buffer.from(file.buffer, 'base64') : null;
     const media = imageBuffer
@@ -148,31 +150,32 @@ export class AppService {
         },
       });
       this.clientData.client = newClient;
+      this.clientData.userId = userId;
       console.log(`🎠 client created for user: ${userId}`);
-      client.initialize();
+      newClient.initialize();
       console.log(`🎠 client initialized for user: ${userId}`);
 
-      this.clientData.state = WAWebJS.WAState.OPENING;
+      this.clientData.state = EState.OPENING;
 
-      client.on('loading_screen', (percent, message) => {
+      newClient.on('loading_screen', (percent, message) => {
         console.log('client-' + userId + ' LOADING SCREEN', percent, message);
-        this.clientData.state = WAWebJS.WAState.PAIRING;
+        this.clientData.state = EState.PAIRING;
       });
-      client.on('authenticated', () => {
+      newClient.on('authenticated', () => {
         console.log('client-' + userId + ' AUTHENTICATED');
-        this.clientData.state = WAWebJS.WAState.PAIRING;
+        this.clientData.state = EState.PAIRING;
       });
-      client.on('auth_failure', (msg) => {
+      newClient.on('auth_failure', (msg) => {
         console.error('client-' + userId + ' AUTHENTICATION FAILURE', msg);
-        this.clientData.state = WAWebJS.WAState.CONFLICT;
+        this.clientData.state = EState.CONFLICT;
       });
-      client.on('ready', async () => {
+      newClient.on('ready', async () => {
         console.log('client-' + userId + ' READY');
-        this.clientData.state = WAWebJS.WAState.CONNECTED;
+        this.clientData.state = EState.CONNECTED;
       });
 
-      client.on('disconnected', async () => {
-        this.clientData.state = WAWebJS.WAState.UNLAUNCHED;
+      newClient.on('disconnected', async () => {
+        this.clientData.state = EState.UNLAUNCHED;
         this.clientData.client = undefined;
         console.log('client-' + userId + ' disconnected.');
       });
@@ -180,9 +183,10 @@ export class AppService {
       console.log(`🎈 getting qrcode for user: ${userId}`);
 
       const qrCode: string = await new Promise((resolve) => {
-        client.on('qr', async (qr) => {
+        newClient.on('qr', async (qr) => {
+          qrcode.generate(qr, { small: true });
           console.log('client-' + userId + ' qr acquired');
-          this.clientData.state = WAWebJS.WAState.UNPAIRED_IDLE;
+          this.clientData.state = EState.UNPAIRED_IDLE;
           this.clientData.qr = qr;
           resolve(qr);
         });
@@ -202,7 +206,7 @@ export class AppService {
 
   async check(): Promise<{
     qr: string;
-    state: WAWebJS.WAState;
+    state: EState;
   }> {
     const { state, qr } = this.clientData;
     return {

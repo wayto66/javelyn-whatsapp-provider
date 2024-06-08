@@ -1,22 +1,29 @@
-export interface ConnectWhatsappInput {
+import { IsNotEmpty } from 'class-validator';
+
+export class ConnectWhatsappInput {
+  @IsNotEmpty({ message: 'userId is required' })
   userId: number;
 }
 
-export interface DisconnectWhatsappInput {
+export class DisconnectWhatsappInput {
+  @IsNotEmpty({ message: 'userId is required' })
   userId: number;
 }
 
-export interface SendMessageInput {
+export class SendMessageInput {
+  @IsNotEmpty({ message: 'userId is required' })
   userId: number;
+  @IsNotEmpty({ message: 'message is required' })
   message: string;
+  @IsNotEmpty({ message: 'leads is required' })
   leads: {
     id: number;
     name: string;
     phone: string;
   }[];
-  file: any;
+  file?: any;
 }
 
-export interface SendMessageResponse {}
+export class SendMessageResponse {}
 
-export interface WhatsappConnectionResponse {}
+export class WhatsappConnectionResponse {}
