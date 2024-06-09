@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Get,
   Post,
   UsePipes,
   ValidationPipe,
@@ -17,7 +16,7 @@ import {
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get('check')
+  @Post('check')
   check() {
     return this.appService.check();
   }
