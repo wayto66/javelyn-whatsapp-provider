@@ -36,7 +36,7 @@ export class AppController {
   @Post('disconnect')
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   disconnect(
-    @Body('data')
+    @Body()
     data: DisconnectWhatsappInput,
   ) {
     return this.appService.disconnect(data);
