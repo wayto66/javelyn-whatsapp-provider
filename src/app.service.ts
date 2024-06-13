@@ -66,7 +66,10 @@ export class AppService {
   }: SendMessageInput): Promise<SendMessageResponse> {
     const { client, userId, state } = this.clientData;
     if (inputUserId !== userId) throw new Error('Forbidden.');
-    if (!client || state !== 'CONNECTED') throw new Error('Sem conexão.');
+    if (!client || state !== EState.CONNECTED) {
+      console.log({ client, state });
+      throw new Error('Sem conexão.');
+    }
 
     const imageBuffer = file ? Buffer.from(file.buffer, 'base64') : null;
     const media = imageBuffer
