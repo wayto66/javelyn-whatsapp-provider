@@ -210,9 +210,13 @@ export class AppService {
   async check(): Promise<{
     qr: string;
     state: EState;
+    check: true;
+    userId: number;
   }> {
-    const { state, qr } = this.clientData;
+    const { state, qr, userId } = this.clientData;
     return {
+      check: true,
+      userId,
       qr,
       state,
     };
