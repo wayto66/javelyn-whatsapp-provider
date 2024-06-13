@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
   UsePipes,
   ValidationPipe,
@@ -44,5 +45,11 @@ export class AppController {
   ) {
     console.log('disconnect-request');
     return this.appService.disconnect(data);
+  }
+
+  @Get('')
+  healthCheck() {
+    console.log('health-check-request');
+    return true;
   }
 }
