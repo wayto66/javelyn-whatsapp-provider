@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import * as qrcode from 'qrcode-terminal';
 import { Client, MessageMedia, NoAuth } from 'whatsapp-web.js';
 import { EState } from './enums';
 import {
@@ -126,25 +125,26 @@ export class AppService {
         authStrategy: new NoAuth(),
         puppeteer: {
           headless: true,
-          args: [
-            '--no-sandbox',
-            '--no-experiments',
-            '--hide-scrollbars',
-            '--disable-plugins',
-            '--disable-infobars',
-            '--disable-translate',
-            '--disable-pepper-3d',
-            '--disable-extensions',
-            '--disable-dev-shm-usage',
-            '--disable-notifications',
-            '--disable-setuid-sandbox',
-            '--disable-crash-reporter',
-            '--disable-smooth-scrolling',
-            '--disable-login-animations',
-            '--disable-dinosaur-easter-egg',
-            '--disable-accelerated-2d-canvas',
-            '--disable-rtc-smoothness-algorithm',
-          ],
+          // args: [
+          //   '--no-sandbox',
+          //   '--no-experiments',
+          //   '--hide-scrollbars',
+          //   '--disable-plugins',
+          //   '--disable-infobars',
+          //   '--disable-translate',
+          //   '--disable-pepper-3d',
+          //   '--disable-extensions',
+          //   '--disable-dev-shm-usage',
+          //   '--disable-notifications',
+          //   '--disable-setuid-sandbox',
+          //   '--disable-crash-reporter',
+          //   '--disable-smooth-scrolling',
+          //   '--disable-login-animations',
+          //   '--disable-dinosaur-easter-egg',
+          //   '--disable-accelerated-2d-canvas',
+          //   '--disable-rtc-smoothness-algorithm',
+          //   '--disable-gpu',
+          // ],
         },
         webVersionCache: {
           type: 'remote',
@@ -185,19 +185,19 @@ export class AppService {
 
       console.log(`🎈 getting qrcode for user: ${userId}`);
 
-      const qrCode: string = await new Promise((resolve) => {
-        newClient.on('qr', async (qr) => {
-          qrcode.generate(qr, { small: true });
-          console.log('client-' + userId + ' qr acquired');
-          this.clientData.state = EState.UNPAIRED_IDLE;
-          this.clientData.qr = qr;
-          resolve(qr);
-        });
+      // const qrCode: string = await new Promise((resolve) => {
+      newClient.on('qr', async (qr) => {
+        // qrcode.generate(qr, { small: true });
+        console.log('client-' + userId + ' qr acquired');
+        this.clientData.state = EState.UNPAIRED_IDLE;
+        this.clientData.qr = qr;
+        // resolve(qr);
       });
+      // });
 
       return {
         isConnected: false,
-        qrCode,
+        qrCode: this.clientData.qr,
       };
     }
 
