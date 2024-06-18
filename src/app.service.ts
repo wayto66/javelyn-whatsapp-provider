@@ -121,29 +121,30 @@ export class AppService {
     const { client } = this.clientData;
 
     if (!client) {
+      console.log('🆕  GENERATING NEW CLIENT');
       const newClient = new Client({
         authStrategy: new NoAuth(),
         puppeteer: {
           headless: true,
           args: [
             '--no-sandbox',
-            //   '--no-experiments',
-            //   '--hide-scrollbars',
-            //   '--disable-plugins',
-            //   '--disable-infobars',
-            //   '--disable-translate',
-            //   '--disable-pepper-3d',
-            //   '--disable-extensions',
-            //   '--disable-dev-shm-usage',
-            //   '--disable-notifications',
-            //   '--disable-setuid-sandbox',
-            //   '--disable-crash-reporter',
-            //   '--disable-smooth-scrolling',
-            //   '--disable-login-animations',
-            //   '--disable-dinosaur-easter-egg',
-            //   '--disable-accelerated-2d-canvas',
-            //   '--disable-rtc-smoothness-algorithm',
-            //   '--disable-gpu',
+            '--no-experiments',
+            '--hide-scrollbars',
+            '--disable-plugins',
+            '--disable-infobars',
+            '--disable-translate',
+            '--disable-pepper-3d',
+            '--disable-extensions',
+            '--disable-dev-shm-usage',
+            '--disable-notifications',
+            '--disable-setuid-sandbox',
+            '--disable-crash-reporter',
+            '--disable-smooth-scrolling',
+            '--disable-login-animations',
+            '--disable-dinosaur-easter-egg',
+            '--disable-accelerated-2d-canvas',
+            '--disable-rtc-smoothness-algorithm',
+            '--disable-gpu',
           ],
         },
         webVersionCache: {
