@@ -25,6 +25,23 @@ export class AppService {
     userId: undefined,
   };
 
+  private memoryInterval: NodeJS.Timeout;
+
+  onModuleInit() {
+    // Inicia o monitoramento de memória quando o módulo é inicializado
+    this.memoryInterval = setInterval(() => {
+      const memoryUsage = process.memoryUsage();
+      console.log(`Memory usage: ${JSON.stringify(memoryUsage)}`);
+    }, 5000);
+  }
+
+  onModuleDestroy() {
+    // Limpa o intervalo de monitoramento de memória quando o módulo é destruído
+    if (this.memoryInterval) {
+      clearInterval(this.memoryInterval);
+    }
+  }
+
   async disconnect({
     userId,
   }: DisconnectWhatsappInput): Promise<WhatsappConnectionResponse> {
