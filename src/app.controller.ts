@@ -47,6 +47,13 @@ export class AppController {
     return this.appService.disconnect(data);
   }
 
+  @Post('get-recent-chats')
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  getRecentChats() {
+    console.log('get-recent-chats-request');
+    return this.appService.getRecentChats();
+  }
+
   @Get('')
   healthCheck() {
     console.log('health-check-request');

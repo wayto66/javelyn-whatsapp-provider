@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import * as qrcode from 'qrcode-terminal';
 import { Client, MessageMedia, NoAuth } from 'whatsapp-web.js';
 import { EState } from './enums';
 import {
@@ -24,23 +25,6 @@ export class AppService {
     client: undefined,
     userId: undefined,
   };
-
-  private memoryInterval: NodeJS.Timeout;
-
-  onModuleInit() {
-    // Inicia o monitoramento de memória quando o módulo é inicializado
-    this.memoryInterval = setInterval(() => {
-      const memoryUsage = process.memoryUsage();
-      console.log(`Memory usage: ${JSON.stringify(memoryUsage)}`);
-    }, 5000);
-  }
-
-  onModuleDestroy() {
-    // Limpa o intervalo de monitoramento de memória quando o módulo é destruído
-    if (this.memoryInterval) {
-      clearInterval(this.memoryInterval);
-    }
-  }
 
   async disconnect({
     userId,
@@ -205,7 +189,7 @@ export class AppService {
 
       // const qrCode: string = await new Promise((resolve) => {
       newClient.on('qr', async (qr) => {
-        // qrcode.generate(qr, { small: true });
+        qrcode.generate(qr, { small: true });
         console.log('client-' + userId + ' qr acquired');
         this.clientData.state = EState.UNPAIRED_IDLE;
         this.clientData.qr = qr;
@@ -238,5 +222,27 @@ export class AppService {
       qr,
       state,
     };
+  }
+
+  async getRecentChats(): Promise<{ nome: string; telefone: string }[]> {
+    const { client, state } = this.clientData;
+    if (!client || state !== EState.CONNECTED) {
+      throw new Error('Sem conexão.');
+    }
+
+    const chats = await client.getChats();
+    const recentChats: { nome: string; telefone: string }[] = [];
+
+    for (const chat of chats) {
+      if (chat.isGroup) continue;
+
+      const contact = await chat.getContact();
+      const nome = contact.name ?? contact.pushname ?? 'Desconhecido';
+      const telefone = chat.id.user;
+
+      recentChats.push({ nome, telefone });
+    }
+
+    return recentChats;
   }
 }

@@ -24,6 +24,11 @@ export class SendMessageInput {
   file?: any;
 }
 
-export class SendMessageResponse {}
+export class SendMessageResponse {
+  succeeded: boolean;
+}
 
-export class WhatsappConnectionResponse {}
+export class WhatsappConnectionResponse {
+  isConnected: boolean;
+  message: string;
+}
