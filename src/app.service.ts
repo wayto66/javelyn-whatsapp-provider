@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as qrcode from 'qrcode-terminal';
-import { Client, MessageMedia, NoAuth } from 'whatsapp-web.js';
+import { Client, LocalAuth, MessageMedia } from 'whatsapp-web.js';
 import { EState } from './enums';
 import {
   ConnectWhatsappInput,
@@ -124,34 +124,28 @@ export class AppService {
     if (!client) {
       console.log('🆕  GENERATING NEW CLIENT');
       const newClient = new Client({
-        authStrategy: new NoAuth(),
-        puppeteer: {
-          headless: true,
-          args: [
-            '--no-sandbox',
-            '--no-experiments',
-            '--hide-scrollbars',
-            '--disable-plugins',
-            '--disable-infobars',
-            '--disable-translate',
-            '--disable-pepper-3d',
-            '--disable-extensions',
-            '--disable-dev-shm-usage',
-            '--disable-notifications',
-            '--disable-setuid-sandbox',
-            '--disable-crash-reporter',
-            '--disable-smooth-scrolling',
-            '--disable-login-animations',
-            '--disable-dinosaur-easter-egg',
-            '--disable-accelerated-2d-canvas',
-            '--disable-rtc-smoothness-algorithm',
-            '--disable-gpu',
-          ],
-        },
+        authStrategy: new LocalAuth(),
+        webVersion: '2.2412.54',
         webVersionCache: {
           type: 'remote',
           remotePath:
             'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
+        },
+
+        puppeteer: {
+          headless: true,
+          executablePath:
+            'C:/Program Files/Google/Chrome/Application/chrome.exe',
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-extensions',
+            '--disable-gpu',
+            '--disable-dev-shm-usage',
+            '--disable-background-networking',
+            '--disable-translate',
+            '--disable-bundled-ppapi-flash',
+          ],
         },
       });
       this.clientData.client = newClient;
