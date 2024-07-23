@@ -57,6 +57,9 @@ export class AppController {
   @Get('')
   healthCheck() {
     console.log('health-check-request');
-    return true;
+    return {
+      v: '1.0.1',
+      stable: true,
+    };
   }
 }
