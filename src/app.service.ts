@@ -131,11 +131,8 @@ export class AppService {
           remotePath:
             'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
         },
-
         puppeteer: {
           headless: true,
-          executablePath:
-            'C:/Program Files/Google/Chrome/Application/chrome.exe',
           args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
