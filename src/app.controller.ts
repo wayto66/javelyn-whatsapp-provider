@@ -52,10 +52,10 @@ export class AppController {
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
   getRecentChats(
     @Body()
-    { labels }: GetRecentChatsInput,
+    data: GetRecentChatsInput,
   ) {
     console.log('get-recent-chats-request');
-    return this.appService.getRecentChats(labels);
+    return this.appService.getRecentChats(data.labels);
   }
 
   @Get('')
