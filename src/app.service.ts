@@ -248,7 +248,7 @@ export class AppService {
 
     for (let i = 0; i < Math.min(100, chats.length); i++) {
       const chat = chats[i];
-      if (chat.isGroup || chat.archived) continue;
+      if (chat.isGroup) continue;
       if (!this.wasSentInLastDayspanDays(daySpan, chat.lastMessage?.timestamp))
         continue;
 
@@ -283,7 +283,13 @@ export class AppService {
   ): boolean {
     if (!messageTimestamp) return false;
     const now = Math.floor(Date.now() / 1000);
-    const spanUNIX = daySpan * 24 * 60 * 60;
-    return now - messageTimestamp <= spanUNIX;
+    const timeSpanInSeconds = daySpan * 24 * 60 * 60;
+    console.log(
+      now,
+      messageTimestamp,
+      timeSpanInSeconds,
+      now - messageTimestamp <= timeSpanInSeconds,
+    );
+    return now - messageTimestamp <= timeSpanInSeconds;
   }
 }
