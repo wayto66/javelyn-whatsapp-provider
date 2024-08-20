@@ -6,6 +6,7 @@ import {
   ChatLead,
   ConnectWhatsappInput,
   DisconnectWhatsappInput,
+  GetRecentChatsInput,
   SendMessageInput,
   SendMessageResponse,
   WhatsappConnectionResponse,
@@ -218,17 +219,25 @@ export class AppService {
     };
   }
 
-  async getRecentChats(labels?: string[]): Promise<ChatLead[]> {
+  async getRecentChats({
+    labels,
+    daySpan,
+  }: GetRecentChatsInput): Promise<ChatLead[]> {
     const { client, state } = this.clientData;
     if (!client || state !== EState.CONNECTED) {
       throw new Error('Sem conexão.');
     }
 
+    const labelNames = labels ? labels.map((label) => label.toLowerCase()) : [];
+
     const chatLabels = labels ? await client.getLabels() : [];
     let chats: Chat[] = [];
     if (labels) {
       const chatPromises: Promise<Chat[]>[] = [];
-      chatLabels.forEach((label) => chatPromises.push(label.getChats()));
+      chatLabels.forEach((label) => {
+        if (labelNames.includes(label.name?.toLowerCase()))
+          chatPromises.push(label.getChats());
+      });
       chats = (await Promise.all(chatPromises)).flat();
     } else {
       chats = await client.getChats();
@@ -239,7 +248,8 @@ export class AppService {
     for (let i = 0; i < Math.min(100, chats.length); i++) {
       const chat = chats[i];
       if (chat.isGroup || chat.archived) continue;
-      if (!this.wasSentInLast7Days(chat.lastMessage?.timestamp)) continue;
+      if (!this.wasSentInLastDayspanDays(daySpan, chat.lastMessage?.timestamp))
+        continue;
 
       const [contact, labels] = await Promise.all([
         chat.getContact(),
@@ -263,10 +273,13 @@ export class AppService {
   ///////////////////////////////// HELPERS ///////////////////////////////////////////////////////////
   ///////////////////////////////// HELPERS ///////////////////////////////////////////////////////////
 
-  private wasSentInLast7Days(messageTimestamp?: number): boolean {
+  private wasSentInLastDayspanDays(
+    daySpan: number,
+    messageTimestamp?: number,
+  ): boolean {
     if (!messageTimestamp) return false;
     const now = Math.floor(Date.now() / 1000);
-    const sevenDaysInSeconds = 7 * 24 * 60 * 60;
-    return now - messageTimestamp <= sevenDaysInSeconds;
+    const spanUNIX = daySpan * 24 * 60 * 60;
+    return now - messageTimestamp <= spanUNIX;
   }
 }
