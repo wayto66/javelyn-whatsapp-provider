@@ -233,6 +233,7 @@ export class AppService {
     const chatLabels = labels ? await client.getLabels() : [];
     let chats: Chat[] = [];
     if (labels) {
+      console.log({ labels });
       const chatPromises: Promise<Chat[]>[] = [];
       chatLabels.forEach((label) => {
         if (labelNames.includes(label.name?.toLowerCase()))
@@ -255,11 +256,14 @@ export class AppService {
         chat.getContact(),
         chat.getLabels(),
       ]);
-      const name = contact.name ?? contact.pushname ?? 'Desconhecido';
+      const name =
+        contact.name ?? contact.pushname ?? contact.shortName ?? 'Desconhecido';
       const phone = chat.id.user;
 
       recentChats.push({ name, phone, labels });
     }
+
+    console.log({ recentChats });
 
     return recentChats;
   }
