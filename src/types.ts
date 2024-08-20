@@ -1,4 +1,4 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { Label } from 'whatsapp-web.js';
 
 export class ConnectWhatsappInput {
@@ -35,7 +35,11 @@ export class WhatsappConnectionResponse {
 }
 
 export class GetRecentChatsInput {
+  @IsArray()
+  @IsString({ each: true })
   labels: string[];
+
+  @IsNumber()
   daySpan: number;
 }
 
