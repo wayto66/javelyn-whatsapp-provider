@@ -155,10 +155,12 @@ export class AppService {
 
       newClient.on('loading_screen', (percent, message) => {
         console.log('client-' + userId + ' LOADING SCREEN', percent, message);
+        if (this.clientData.state === EState.CONNECTED) return;
         this.clientData.state = EState.PAIRING;
       });
       newClient.on('authenticated', () => {
         console.log('client-' + userId + ' AUTHENTICATED');
+        if (this.clientData.state === EState.CONNECTED) return;
         this.clientData.state = EState.PAIRING;
       });
       newClient.on('auth_failure', (msg) => {
