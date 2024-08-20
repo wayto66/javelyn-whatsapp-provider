@@ -49,7 +49,9 @@ export class AppController {
   }
 
   @Post('get-recent-chats')
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  @UsePipes(
+    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }),
+  )
   getRecentChats(
     @Body()
     data: GetRecentChatsInput,
