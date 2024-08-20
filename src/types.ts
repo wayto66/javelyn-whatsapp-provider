@@ -35,7 +35,7 @@ export class WhatsappConnectionResponse {
 }
 
 export class GetRecentChatsInput {
-  labels?: string[];
+  labels: string[];
   daySpan: number;
 }
 

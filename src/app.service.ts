@@ -234,7 +234,7 @@ export class AppService {
 
     const chatLabels = labels ? await client.getLabels() : [];
     let chats: Chat[] = [];
-    if (labels) {
+    if (labels.length > 0) {
       console.log({ labels });
       const chatPromises: Promise<Chat[]>[] = [];
       chatLabels.forEach((label) => {
