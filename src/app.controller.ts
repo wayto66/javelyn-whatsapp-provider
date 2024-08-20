@@ -57,7 +57,7 @@ export class AppController {
     data: GetRecentChatsInput,
   ) {
     console.log('get-recent-chats-request');
-    return this.appService.getRecentChats(data.labels);
+    return this.appService.getRecentChats(data);
   }
 
   @Get('')
