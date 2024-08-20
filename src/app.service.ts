@@ -228,6 +228,8 @@ export class AppService {
       throw new Error('Sem conexão.');
     }
 
+    console.log(daySpan);
+
     const labelNames = labels ? labels.map((label) => label.toLowerCase()) : [];
 
     const chatLabels = labels ? await client.getLabels() : [];
