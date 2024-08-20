@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import * as qrcode from 'qrcode-terminal';
-import { Client, LocalAuth, MessageMedia } from 'whatsapp-web.js';
+import { Chat, Client, LocalAuth, MessageMedia } from 'whatsapp-web.js';
 import { EState } from './enums';
 import {
+  ChatLead,
   ConnectWhatsappInput,
   DisconnectWhatsappInput,
   SendMessageInput,
@@ -217,25 +218,54 @@ export class AppService {
     };
   }
 
-  async getRecentChats(): Promise<{ nome: string; telefone: string }[]> {
+  async getRecentChats(labels?: string[]): Promise<ChatLead[]> {
     const { client, state } = this.clientData;
     if (!client || state !== EState.CONNECTED) {
       throw new Error('Sem conexão.');
     }
 
-    const chats = await client.getChats();
-    const recentChats: { nome: string; telefone: string }[] = [];
+    const chatLabels = labels ? await client.getLabels() : [];
+    let chats: Chat[] = [];
+    if (labels) {
+      const chatPromises: Promise<Chat[]>[] = [];
+      chatLabels.forEach((label) => chatPromises.push(label.getChats()));
+      chats = (await Promise.all(chatPromises)).flat();
+    } else {
+      chats = await client.getChats();
+    }
 
-    for (const chat of chats) {
-      if (chat.isGroup) continue;
+    const recentChats: ChatLead[] = [];
 
-      const contact = await chat.getContact();
-      const nome = contact.name ?? contact.pushname ?? 'Desconhecido';
-      const telefone = chat.id.user;
+    for (let i = 0; i < Math.min(100, chats.length); i++) {
+      const chat = chats[i];
+      if (chat.isGroup || chat.archived) continue;
+      if (!this.wasSentInLast7Days(chat.lastMessage.timestamp)) continue;
 
-      recentChats.push({ nome, telefone });
+      const [contact, labels] = await Promise.all([
+        chat.getContact(),
+        chat.getLabels(),
+      ]);
+      const name = contact.name ?? contact.pushname ?? 'Desconhecido';
+      const phone = chat.id.user;
+
+      recentChats.push({ name, phone, labels });
     }
 
     return recentChats;
+  }
+
+  ///////////////////////////////// HELPERS ///////////////////////////////////////////////////////////
+  ///////////////////////////////// HELPERS ///////////////////////////////////////////////////////////
+  ///////////////////////////////// HELPERS ///////////////////////////////////////////////////////////
+  ///////////////////////////////// HELPERS ///////////////////////////////////////////////////////////
+  ///////////////////////////////// HELPERS ///////////////////////////////////////////////////////////
+  ///////////////////////////////// HELPERS ///////////////////////////////////////////////////////////
+  ///////////////////////////////// HELPERS ///////////////////////////////////////////////////////////
+  ///////////////////////////////// HELPERS ///////////////////////////////////////////////////////////
+
+  private wasSentInLast7Days(messageTimestamp: number): boolean {
+    const now = Math.floor(Date.now() / 1000);
+    const sevenDaysInSeconds = 7 * 24 * 60 * 60;
+    return now - messageTimestamp <= sevenDaysInSeconds;
   }
 }

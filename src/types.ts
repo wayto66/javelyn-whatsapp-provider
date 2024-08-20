@@ -1,4 +1,5 @@
 import { IsNotEmpty } from 'class-validator';
+import { Label } from 'whatsapp-web.js';
 
 export class ConnectWhatsappInput {
   @IsNotEmpty({ message: 'userId is required' })
@@ -31,4 +32,14 @@ export class SendMessageResponse {
 export class WhatsappConnectionResponse {
   isConnected: boolean;
   message: string;
+}
+
+export class GetRecentChatsInput {
+  labels?: string[];
+}
+
+export class ChatLead {
+  name: string;
+  phone: string;
+  labels: Label[];
 }

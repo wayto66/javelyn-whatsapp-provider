@@ -10,6 +10,7 @@ import { AppService } from './app.service';
 import {
   ConnectWhatsappInput,
   DisconnectWhatsappInput,
+  GetRecentChatsInput,
   SendMessageInput,
 } from './types';
 
@@ -49,9 +50,12 @@ export class AppController {
 
   @Post('get-recent-chats')
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
-  getRecentChats() {
+  getRecentChats(
+    @Body()
+    { labels }: GetRecentChatsInput,
+  ) {
     console.log('get-recent-chats-request');
-    return this.appService.getRecentChats();
+    return this.appService.getRecentChats(labels);
   }
 
   @Get('')
