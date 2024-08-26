@@ -228,11 +228,14 @@ export class AppService {
       throw new Error('Sem conexão.');
     }
 
-    console.log(daySpan);
+    console.log(daySpan, labels);
 
     const labelNames = labels ? labels.map((label) => label.toLowerCase()) : [];
 
     const chatLabels = labels ? await client.getLabels() : [];
+
+    console.log('chatlabels', chatLabels);
+    console.log('labels.lenghth', labels.length);
     let chats: Chat[] = [];
     if (labels.length > 0) {
       console.log({ labels });
@@ -246,11 +249,16 @@ export class AppService {
       chats = await client.getChats();
     }
 
+    console.log('chats.lenghth', chats.length);
+
     const recentChats: ChatLead[] = [];
 
     for (let i = 0; i < Math.min(100, chats.length); i++) {
       const chat = chats[i];
-      if (chat.isGroup) continue;
+      if (chat.isGroup) {
+        console.log(chat.name, 'isgroup');
+        continue;
+      }
       if (!this.wasSentInLastDayspanDays(daySpan, chat.lastMessage?.timestamp))
         continue;
 
@@ -283,7 +291,10 @@ export class AppService {
     daySpan: number,
     messageTimestamp?: number,
   ): boolean {
-    if (!messageTimestamp) return false;
+    if (!messageTimestamp) {
+      console.log('no msgtimestp');
+      return false;
+    }
     const now = Math.floor(Date.now() / 1000);
     const timeSpanInSeconds = daySpan * 24 * 60 * 60;
     console.log(
